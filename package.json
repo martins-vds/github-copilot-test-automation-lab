@@ -10,5 +10,8 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.55.0"
+  },
+  "dependencies": {
+    "github-copilot-test-automation-lab": "file:"
   }
 }
