@@ -27,7 +27,7 @@ Before we dive into writing tests, make sure your environment is prepared with t
 
 Next, let's set up a new project for our Playwright tests.
 
-1. **Create a project folder:** Choose a directory on your machine and create a new folder (for example, suncor-playwright-lab). Open this folder in Visual Studio Code (File > Open Folder).
+1. **Create a project folder:** Choose a directory on your machine and create a new folder (for example, `suncor-playwright-lab`). Open this folder in Visual Studio Code (File > Open Folder).
 
 2. **Initialize a Node.js project:** In VS Code, open a terminal (**Ctrl+`**  or via Terminal > New Terminal). Run the following command to initialize a Node.js project with a default package.json file:
 
