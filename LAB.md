@@ -1,275 +1,275 @@
-# Hands-On Lab: UI Testing with VS Code, GitHub Copilot & Playwright (TypeScript)
+# Laboratório Prático: Testes de UI com VS Code, GitHub Copilot & Playwright (TypeScript)
 
-Welcome to this self-paced lab! In this tutorial, you'll learn how to set up **Visual Studio Code**, **enable GitHub Copilot**, and **use Playwright (with the MCP server)** to compose and execute end-to-end UI tests in **TypeScript**.
+Bem-vindo a este laboratório autodirigido! Neste tutorial, você aprenderá como configurar o **Visual Studio Code**, **habilitar o GitHub Copilot** e **usar o Playwright (com o servidor MCP)** para compor e executar testes de UI end-to-end em **TypeScript**.
 
-We'll walk through writing tests for the Suncor company website (<https://www.suncor.com>) step-by-step – perfect for beginners to GitHub Copilot and Playwright.
+Vamos passo a passo escrever testes para o site de relações com investidores da COPASA (<https://ri.copasa.com.br/>) – perfeito para iniciantes no GitHub Copilot e Playwright.
 
-Along the way, we'll cover setup, writing and running tests (with Copilot's help), and even an advanced peek at using the Playwright MCP server with Copilot's agent mode.
+Ao longo do caminho, abordaremos a configuração, escrita e execução de testes (com a ajuda do Copilot), e até uma visão avançada do uso do servidor MCP do Playwright com o modo agente do Copilot.
 
-Finally, we include best practices and troubleshooting tips to ensure a smooth experience.
+Por fim, incluímos melhores práticas e dicas de solução de problemas para garantir uma experiência tranquila.
 
-## 1. Prerequisites and Environment Setup
+## 1. Pré-requisitos e Configuração do Ambiente
 
-Before we dive into writing tests, make sure your environment is prepared with the following:
+Antes de começarmos a escrever testes, certifique-se de que seu ambiente está preparado com o seguinte:
 
-- **Node.js (v18 or higher):** Playwright (and the MCP server) require Node.js 18+. You can download Node from the official website. Verify the installation by running node -v in a terminal. (Example output should show 18.x or newer.)
-- **npm:** Comes bundled with Node.js. Verify by running npm -v.
-- **Visual Studio Code:** Our code editor of choice. Ensure you have the latest VS Code installed. This lab assumes you're using VS Code for all coding, terminal, and Copilot interactions. [How to Install Visual Studio Code]
-- **GitHub Copilot Access:** You'll need a GitHub account with an active Copilot subscription or trial (Copilot is a paid AI coding assistant). If you haven't already, sign up for GitHub Copilot (there's a free trial available for new users).
+- **Node.js (v18 ou superior):** O Playwright (e o servidor MCP) requerem Node.js 18+. Você pode baixar o Node no site oficial. Verifique a instalação executando node -v em um terminal. (A saída de exemplo deve mostrar 18.x ou mais recente.)
+- **npm:** Vem incluído com o Node.js. Verifique executando npm -v.
+- **Visual Studio Code:** Nosso editor de código preferido. Certifique-se de ter a versão mais recente do VS Code instalada. Este laboratório pressupõe que você está usando o VS Code para toda codificação, terminal e interações com o Copilot. [Como Instalar o Visual Studio Code]
+- **Acesso ao GitHub Copilot:** Você precisará de uma conta GitHub com uma assinatura ativa do Copilot ou período de teste (Copilot é um assistente de codificação de IA pago). Se você ainda não tem, inscreva-se no GitHub Copilot (há um período de teste gratuito disponível para novos usuários).
 
-**Install the GitHub Copilot extension in VS Code:** If you haven't installed it yet, open VS Code and go to the Extensions view (click the Extensions icon on the left or press `Ctrl+Shift+X`). Search for **"GitHub Copilot"** and click Install on the official extension. After installation, you'll be prompted to sign in to GitHub to authorize Copilot. Follow the login prompts and authorize VS Code with your GitHub account. Once signed in, VS Code will indicate that GitHub Copilot is active (you should see the Copilot icon at the bottom status bar).
+**Instalar a extensão GitHub Copilot no VS Code:** Se você ainda não a instalou, abra o VS Code e vá para a visualização de Extensões (clique no ícone de Extensões à esquerda ou pressione `Ctrl+Shift+X`). Procure por **"GitHub Copilot"** e clique em Instalar na extensão oficial. Após a instalação, você será solicitado a fazer login no GitHub para autorizar o Copilot. Siga as solicitações de login e autorize o VS Code com sua conta GitHub. Uma vez conectado, o VS Code indicará que o GitHub Copilot está ativo (você deve ver o ícone do Copilot na barra de status inferior).
 
-> **Note:** By default, installing the Copilot extension in VS Code also installs the Copilot Chat extension (for the chat interface). In this lab we will primarily use Copilot's inline suggestions, but having Copilot Chat is useful for asking questions or using the new agent mode later.
+> **Nota:** Por padrão, instalar a extensão Copilot no VS Code também instala a extensão Copilot Chat (para a interface de chat). Neste laboratório, usaremos principalmente as sugestões inline do Copilot, mas ter o Copilot Chat é útil para fazer perguntas ou usar o novo modo agente posteriormente.
 
-**Verify Copilot is working:** Open a new file in VS Code (e.g., a simple JavaScript or TypeScript file) and start typing a comment like `// this function will return the sum of two numbers`. After a moment, GitHub Copilot should suggest a code completion (grayed text) based on the comment. If you see suggestions, Copilot is set up correctly! If not, ensure you're logged in and that your subscription is active.
+**Verificar se o Copilot está funcionando:** Abra um novo arquivo no VS Code (por exemplo, um arquivo JavaScript ou TypeScript simples) e comece a digitar um comentário como `// esta função retornará a soma de dois números`. Após um momento, o GitHub Copilot deve sugerir uma conclusão de código (texto acinzentado) com base no comentário. Se você ver sugestões, o Copilot está configurado corretamente! Caso contrário, certifique-se de estar conectado e de que sua assinatura está ativa.
 
-## 2. Setting Up the Project and Installing Playwright
+## 2. Configurando o Projeto e Instalando o Playwright
 
-Next, let's set up a new project for our Playwright tests.
+A seguir, vamos configurar um novo projeto para nossos testes do Playwright.
 
-1. **Create a project folder:** Choose a directory on your machine and create a new folder (for example, `suncor-playwright-lab`). Open this folder in Visual Studio Code (File > Open Folder).
+1. **Criar uma pasta de projeto:** Escolha um diretório em sua máquina e crie uma nova pasta (por exemplo, `copasa-playwright-lab`). Abra esta pasta no Visual Studio Code (Arquivo > Abrir Pasta).
 
-2. **Initialize a Node.js project:** In VS Code, open a terminal (**Ctrl+`**  or via Terminal > New Terminal). Run the following command to initialize a Node.js project with a default package.json file:
+2. **Inicializar um projeto Node.js:** No VS Code, abra um terminal (**Ctrl+`** ou via Terminal > Novo Terminal). Execute o seguinte comando para inicializar um projeto Node.js com um arquivo package.json padrão:
 
     ```bash
     npm init -y
     ```
 
-    This will create a package.json with default settings (you can open it to confirm).
+    Isso criará um package.json com configurações padrão (você pode abri-lo para confirmar).
 
-3. **Install Playwright (Test):** Now install Playwright's test runner as a development dependency. We'll use the TypeScript version of Playwright Test:
+3. **Instalar o Playwright (Test):** Agora instale o executor de testes do Playwright como uma dependência de desenvolvimento. Usaremos a versão TypeScript do Playwright Test:
 
     ```bash
     npm install -D @playwright/test
     ```
 
-    This downloads the Playwright framework.
+    Isso baixa o framework Playwright.
 
-4. **Install Playwright browsers:** Playwright automates real web browsers (Chromium, Firefox, WebKit). After installing the package, you need to download the browser binaries. Run:
+4. **Instalar navegadores do Playwright:** O Playwright automatiza navegadores web reais (Chromium, Firefox, WebKit). Após instalar o pacote, você precisa baixar os binários do navegador. Execute:
 
     ```bash
     npx playwright install
     ```
 
-    This will download browsers (Chromium, Firefox, WebKit) to be used by Playwright. You should see output indicating the installation of browsers. (By default, Playwright will install all three browser engines.)
+    Isso baixará os navegadores (Chromium, Firefox, WebKit) para serem usados pelo Playwright. Você deve ver uma saída indicando a instalação dos navegadores. (Por padrão, o Playwright instalará os três motores de navegador.)
 
-    After these steps, your project folder should contain node_modules, a package-lock.json, and the package.json with @playwright/test listed as a dev dependency.
+    Após essas etapas, sua pasta de projeto deve conter node_modules, um package-lock.json e o package.json com @playwright/test listado como uma dependência de desenvolvimento.
 
-5. **(Optional) Configure TypeScript:** Playwright can run tests written in TypeScript out-of-the-box, so a TypeScript compiler config is not strictly required for our simple project. Playwright will transpile your .ts tests at runtime. However, if you want VS Code to fully recognize TypeScript, you can initialize a tsconfig:
+5. **(Opcional) Configurar TypeScript:** O Playwright pode executar testes escritos em TypeScript imediatamente, portanto, um arquivo de configuração do compilador TypeScript não é estritamente necessário para nosso projeto simples. O Playwright transpilará seus testes .ts em tempo de execução. No entanto, se você quiser que o VS Code reconheça completamente o TypeScript, você pode inicializar um tsconfig:
 
     ```bash
     npx tsc --init
     ```
 
-    This creates a default **tsconfig.json**. You might set "target": "ES2020" and "module": "commonjs" (or leave defaults). This step is optional — Playwright will run tests even if TypeScript isn't manually compiled.
+    Isso cria um **tsconfig.json** padrão. Você pode definir "target": "ES2020" e "module": "commonjs" (ou deixar os padrões). Esta etapa é opcional — o Playwright executará os testes mesmo se o TypeScript não for compilado manualmente.
 
-Your environment is now ready with Node.js, VS Code, Copilot, and Playwright installed.
+Seu ambiente agora está pronto com Node.js, VS Code, Copilot e Playwright instalados.
 
-**Project structure so far:**
+**Estrutura do projeto até agora:**
 
 ```text
-suncor-playwright-lab/
+copasa-playwright-lab/
 ├─ package.json
 ├─ package-lock.json
-├─ tsconfig.json        (if you ran tsc --init)
-└─ node_modules/        (contains Playwright and its deps)
+├─ tsconfig.json        (se você executou tsc --init)
+└─ node_modules/        (contém o Playwright e suas dependências)
 ```
 
-## 3. Writing Your First Playwright Test (with Copilot's Help)
+## 3. Escrevendo Seu Primeiro Teste Playwright (com a Ajuda do Copilot)
 
-We will start by writing a simple test for Suncor's homepage. The test will load the homepage and verify that the page title contains "Suncor". Let's create our first test file and use GitHub Copilot to speed up the coding.
+Vamos começar escrevendo um teste simples para a página inicial da COPASA. O teste carregará a página inicial e verificará se o título da página contém "COPASA". Vamos criar nosso primeiro arquivo de teste e usar o GitHub Copilot para acelerar a codificação.
 
-**Step 3.1: Create a test file**. In the project folder, create a new directory called **tests** (Playwright by default looks for tests in a `tests/` directory). Inside that, create a file named `suncor.spec.ts`. (The `.spec.ts` extension is conventional for test files.)
+**Passo 3.1: Criar um arquivo de teste**. Na pasta do projeto, crie um novo diretório chamado **tests** (o Playwright por padrão procura por testes em um diretório `tests/`). Dentro dele, crie um arquivo chamado `copasa.spec.ts`. (A extensão `.spec.ts` é convencional para arquivos de teste.)
 
-Open `suncor.spec.ts` in VS Code.
+Abra `copasa.spec.ts` no VS Code.
 
-**Step 3.2: Import Playwright testing utilities**. Start by writing the import line for Playwright's test functions at the top of the file:
+**Passo 3.2: Importar utilitários de teste do Playwright**. Comece escrevendo a linha de importação para as funções de teste do Playwright no topo do arquivo:
 
 ```typescript
 import { test, expect } from '@playwright/test';
 ```
 
-This brings in the test function to define a test case and the expect assertion library for verifications.
+Isso importa a função test para definir um caso de teste e a biblioteca de asserção expect para verificações.
 
-> *Tip*: As you started typing the import, Copilot may have auto-completed it for you. If not, simply type it out or accept the suggestion when it appears.
+> *Dica*: Conforme você começar a digitar a importação, o Copilot pode tê-la completado automaticamente para você. Caso contrário, simplesmente digite ou aceite a sugestão quando ela aparecer.
 
-**Step 3.3: Write a test to verify the homepage title.** We will use the `test()` function to define a test. Type the following test stub in the file:
+**Passo 3.3: Escrever um teste para verificar o título da página inicial.** Usaremos a função `test()` para definir um teste. Digite o seguinte esboço de teste no arquivo:
 
 ```typescript
-test('Suncor homepage has the correct title', async ({ page }) => {
-  // TODO: go to Suncor homepage and check title
+test('Página inicial da COPASA tem o título correto', async ({ page }) => {
+  // TODO: ir para a página inicial da COPASA e verificar o título
 });
 ```
 
-A few notes:
+Algumas observações:
 
-The string `'Suncor homepage has the correct title'` is a human-readable name for the test.
-The async function gets a `{ page }` object from Playwright, which represents a browser page (this is provided via Playwright's fixture).
-Inside the function, we left a `// TODO` comment. We'll let Copilot help us fill this in.
+A string `'Página inicial da COPASA tem o título correto'` é um nome legível para o teste.
+A função assíncrona recebe um objeto `{ page }` do Playwright, que representa uma página do navegador (isso é fornecido através do fixture do Playwright).
+Dentro da função, deixamos um comentário `// TODO`. Vamos deixar o Copilot nos ajudar a preenchê-lo.
 
-Now, **use GitHub Copilot to complete the test steps**. Place your cursor after the `// TODO comment` (or start a new line below it) and **write a comment or prompt** describing what you want to do. For example:
-
-```typescript
-    // Navigate to Suncor homepage and verify the title contains "Suncor"
-```
-
-As soon as you finish typing this comment (and pause a moment), Copilot should suggest the code to perform that action. Accept the suggestion (press Tab or click it) if it looks correct. Copilot will likely produce something like:
+Agora, **use o GitHub Copilot para completar as etapas do teste**. Coloque seu cursor após o `// TODO` (ou inicie uma nova linha abaixo dele) e **escreva um comentário ou prompt** descrevendo o que você quer fazer. Por exemplo:
 
 ```typescript
-  await page.goto('https://www.suncor.com');
+    // Navegar para a página inicial da COPASA e verificar se o título contém "COPASA"
 ```
 
-This is exactly what we need:
+Assim que você terminar de digitar este comentário (e pausar um momento), o Copilot deve sugerir o código para executar essa ação. Aceite a sugestão (pressione Tab ou clique nela) se parecer correta. O Copilot provavelmente produzirá algo como:
 
-- `page.goto('https://www.suncor.com/')` instructs Playwright to open the browser and navigate to Suncor's homepage.
-- `expect(page).toHaveTitle(/Suncor/)` asserts that the page's title contains the word "Suncor" (using a regex). This will automatically wait until the title is available.
+```typescript
+  await page.goto('https://ri.copasa.com.br/');
+```
 
-Your first test is complete! For reference, the `suncor.spec.ts` file should now look like this:
+Isso é exatamente o que precisamos:
+
+- `page.goto('https://ri.copasa.com.br/')` instrui o Playwright a abrir o navegador e navegar para a página inicial de relações com investidores da COPASA.
+- `expect(page).toHaveTitle(/COPASA/)` afirma que o título da página contém a palavra "COPASA" (usando uma regex). Isso aguardará automaticamente até que o título esteja disponível.
+
+Seu primeiro teste está completo! Para referência, o arquivo `copasa.spec.ts` deve agora ficar assim:
 
 ```typescript
 import { test, expect } from '@playwright/test';
 
-test('Suncor homepage has the correct title', async ({ page }) => {
-  await page.goto('https://www.suncor.com/');
-  await expect(page).toHaveTitle(/Suncor/);
+test('Página inicial da COPASA tem o título correto', async ({ page }) => {
+  await page.goto('https://ri.copasa.com.br/');
+  await expect(page).toHaveTitle(/COPASA/);
 });
 ```
 
-> If Copilot did not auto-generate the code, no worries – you can manually type the two lines above. They are straightforward and accomplish the required actions.
+> Se o Copilot não gerou automaticamente o código, sem problemas – você pode digitar manualmente as duas linhas acima. Elas são diretas e realizam as ações necessárias.
 
-## 4. Writing a Second Test: Navigating the Site
+## 4. Escrevendo um Segundo Teste: Navegando pelo Site
 
-For a more interactive test, we'll add another scenario: click the "Investors" link on the Suncor homepage and verify that the Investors page loads correctly (for example, by checking its title or content).
+Para um teste mais interativo, vamos adicionar outro cenário: clicar no link de informações financeiras no site da COPASA e verificar se a página carrega corretamente (por exemplo, verificando seu título ou conteúdo).
 
-**Step 4.1: Add a new test case in the same file.** Below the first test, start writing a new `test(...)` block:
+**Passo 4.1: Adicionar um novo caso de teste no mesmo arquivo.** Abaixo do primeiro teste, comece a escrever um novo bloco `test(...)`:
 
 ```typescript
-test('Navigate to Investors page via homepage menu', async ({ page }) => {
-  // TODO: go to homepage, click "Investors" link, and verify page
+test('Navegar para página de informações financeiras', async ({ page }) => {
+  // TODO: ir para a página inicial, clicar no link de informações e verificar a página
 });
 ```
 
-Again, use Copilot to fill in the steps. You might write a comment like `// click the Investors link in the navbar` and see what Copilot suggests. If Copilot doesn't automatically suggest, try typing the first action yourself and it may complete the rest. For instance:
+Novamente, use o Copilot para preencher as etapas. Você pode escrever um comentário como `// clicar no link de informações financeiras` e ver o que o Copilot sugere. Se o Copilot não sugerir automaticamente, tente digitar a primeira ação você mesmo e ele pode completar o resto. Por exemplo:
 
-- Start by going to the homepage (we know this from the previous test):
-
-    ```typescript
-    await page.goto('https://www.suncor.com/');
-    ```
-
-    Copilot may even suggest this line as you start typing `await page.goto('https://www.suncor.com/');`
-
-- Next, we need to click the **Investors** link. There are a few ways in Playwright to select an element:
-    - Clicking by visible text: `await page.click('text=Investors');`
-    - Using Playwright's built-in role selectors (accessible name): `await page.getByRole('link', { name: 'Investors' }).click();`
-    - Or using a CSS/XPath selector if we know one (not needed here since text is simplest).
-
-    Let's use the text selector for simplicity. Type a line like:
+- Comece indo para a página inicial (sabemos isso do teste anterior):
 
     ```typescript
-    await page.click('text=Investors');
+    await page.goto('https://ri.copasa.com.br/');
     ```
 
-    Copilot might auto-complete it once you type `'text=Investors'`. This will find any element with visible text "Investors" and click it. (This should click the Investors menu item on the homepage.)
+    O Copilot pode até sugerir esta linha quando você começar a digitar `await page.goto('https://ri.copasa.com.br/');`
 
-- After clicking, Playwright should navigate to the Investors page. We want to verify we landed on the right page. An easy check is the page title or URL. According to Suncor's site, the Investors page title is likely "Investors | Suncor". We can assert the title contains "Investors":
+- Em seguida, precisamos clicar em um link de navegação relevante. Existem algumas maneiras no Playwright de selecionar um elemento:
+    - Clicar por texto visível: `await page.click('text=Informações Financeiras');`
+    - Usar os seletores de função integrados do Playwright (nome acessível): `await page.getByRole('link', { name: 'Informações Financeiras' }).click();`
+    - Ou usar um seletor CSS/XPath se soubermos um (não é necessário aqui, pois o texto é mais simples).
+
+    Vamos usar o seletor de texto para simplicidade. Digite uma linha como:
 
     ```typescript
-    await expect(page).toHaveTitle(/Investors/);
+    await page.click('text=Informações Financeiras');
     ```
 
-    Alternatively, we could check that the URL contains "investors":
+    O Copilot pode completá-lo automaticamente quando você digitar `'text=Informações Financeiras'`. Isso encontrará qualquer elemento com o texto visível "Informações Financeiras" e clicará nele. (Isso deve clicar no item de menu de informações na página inicial.)
+
+- Após clicar, o Playwright deve navegar para a página correspondente. Queremos verificar se chegamos à página certa. Uma verificação fácil é o título da página ou URL. Podemos afirmar que a URL contém parte do caminho esperado:
 
     ```typescript
-    await expect(page).toHaveURL(/investors/);
+    await expect(page).toHaveURL(/informacoes/);
     ```
 
-Putting it all together, the second test might look like this (with Copilot's help or manual typing):
+    Alternativamente, podemos verificar o título da página:
+
+    ```typescript
+    await expect(page).toHaveTitle(/Informações/);
+    ```
+
+Juntando tudo, o segundo teste pode ficar assim (com a ajuda do Copilot ou digitação manual):
 
 ```typescript
-test('Navigate to Investors page via homepage menu', async ({ page }) => {
-  await page.goto('https://www.suncor.com/');
-  await page.click('text=Investors');
-  await expect(page).toHaveTitle(/Investors/);
+test('Navegar para página de informações financeiras', async ({ page }) => {
+  await page.goto('https://ri.copasa.com.br/');
+  await page.click('text=Informações Financeiras');
+  await expect(page).toHaveURL(/informacoes/);
 });
 ```
 
-Now our `suncor.spec.ts` file has two tests. For clarity, here's the full content of the file:
+Agora nosso arquivo `copasa.spec.ts` tem dois testes. Para maior clareza, aqui está o conteúdo completo do arquivo:
 
 ```typescript
 import { test, expect } from '@playwright/test';
 
-test('Suncor homepage has the correct title', async ({ page }) => {
-  await page.goto('https://www.suncor.com/');
-  await expect(page).toHaveTitle(/Suncor/);
+test('Página inicial da COPASA tem o título correto', async ({ page }) => {
+  await page.goto('https://ri.copasa.com.br/');
+  await expect(page).toHaveTitle(/COPASA/);
 });
 
-test('Navigate to Investors page via homepage menu', async ({ page }) => {
-  await page.goto('https://www.suncor.com/');
-  await page.click('text=Investors');
-  await expect(page).toHaveTitle(/Investors/);
+test('Navegar para página de informações financeiras', async ({ page }) => {
+  await page.goto('https://ri.copasa.com.br/');
+  await page.click('text=Informações Financeiras');
+  await expect(page).toHaveURL(/informacoes/);
 });
 ```
 
-Each `test(...)` is independent – Playwright will launch a new browser context for each, so the second test isn't relying on the first one's side effects. We navigate to the homepage in both tests to be explicit and keep tests self-contained.
+Cada `test(...)` é independente – o Playwright lançará um novo contexto de navegador para cada um, então o segundo teste não depende dos efeitos colaterais do primeiro. Navegamos para a página inicial em ambos os testes para ser explícito e manter os testes autocontidos.
 
-**A note on Copilot:** If you found Copilot's suggestions useful here, great! If it made an incorrect suggestion (for example, clicking a wrong selector), that's okay. Part of learning Copilot is guiding it with good comments or editing the code it gives you. In our case, we guided it with clear comments and got the needed code. When Copilot suggested the code, we still made sure it made sense (always review the AI-suggested code!).
+**Uma nota sobre o Copilot:** Se você achou as sugestões do Copilot úteis aqui, ótimo! Se ele fez uma sugestão incorreta (por exemplo, clicando em um seletor errado), tudo bem. Parte do aprendizado do Copilot é guiá-lo com bons comentários ou editar o código que ele fornece. No nosso caso, guiamos com comentários claros e obtivemos o código necessário. Quando o Copilot sugeriu o código, ainda nos certificamos de que fazia sentido (sempre revise o código sugerido pela IA!).
 
-Now, let's run our tests and see them in action.
+Agora, vamos executar nossos testes e vê-los em ação.
 
-## 5. Executing the Tests
+## 5. Executando os Testes
 
-We have two test cases ready. Playwright provides a test runner that will launch browsers, run tests, and report results. There are a couple of ways to run the tests:
+Temos dois casos de teste prontos. O Playwright fornece um executor de testes que lançará navegadores, executará testes e reportará resultados. Existem algumas maneiras de executar os testes:
 
-**Option A: Run tests via the command line**. In your VS Code terminal, run:
+**Opção A: Executar testes via linha de comando**. No seu terminal do VS Code, execute:
 
 ```bash
 npx playwright test
 ```
 
-This command will find tests (it looks in the tests directory by default) and execute them. By default, it runs tests in headless mode (browsers not visible) on all three browsers (Chromium, Firefox, WebKit) if not specified otherwise.
+Este comando encontrará os testes (ele procura no diretório tests por padrão) e os executará. Por padrão, executa testes em modo headless (navegadores não visíveis) em todos os três navegadores (Chromium, Firefox, WebKit) se não for especificado o contrário.
 
-You should see output in the terminal indicating that the tests are running and then the results. For example, it might show something like:
+Você deve ver uma saída no terminal indicando que os testes estão sendo executados e depois os resultados. Por exemplo, pode mostrar algo como:
 
 ```text
 Running 2 tests using 1 worker
-[chromium] › ✔  suncor.spec.ts:3:1 › Suncor homepage has the correct title (PASSED)
-[chromium] › ✔  suncor.spec.ts:9:1 › Navigate to Investors page via homepage menu (PASSED)
+[chromium] › ✔  copasa.spec.ts:3:1 › Página inicial da COPASA tem o título correto (PASSED)
+[chromium] › ✔  copasa.spec.ts:9:1 › Navegar para página de informações financeiras (PASSED)
 ```
 
-Followed by summary statistics (2 passed, 0 failed). Congratulations, both tests should pass! 🎉
+Seguido por estatísticas resumidas (2 aprovados, 0 reprovados). Parabéns, ambos os testes devem passar! 🎉
 
-If anything failed, read the error message to see what assertion failed or which step. Common issues could be a navigation timeout if the site was slow, or a selector failing if the "Investors" text wasn't found (ensure the spelling matches exactly). In our case, Suncor's homepage should have an "Investors" link, so it should work.
+Se algo falhar, leia a mensagem de erro para ver qual asserção falhou ou qual etapa. Problemas comuns podem ser um timeout de navegação se o site estava lento, ou um seletor falhando se o texto "Informações Financeiras" não foi encontrado (certifique-se de que a ortografia corresponde exatamente). No nosso caso, a página inicial da COPASA deve ter um link para informações, então deve funcionar.
 
-**Run in headed mode (optional):** It's often useful (and fun) to watch the browser as the tests run. To launch the browser visually, append the `--headed` flag:
+**Executar em modo headed (opcional):** Muitas vezes é útil (e divertido) assistir ao navegador enquanto os testes são executados. Para iniciar o navegador visualmente, adicione a flag `--headed`:
 
 ```bash
 npx playwright test --headed
 ```
 
-Now Playwright will open a real browser window for each test, allowing you to see the interactions (you'll see it navigate to the site and click the link). This is great for debugging or learning what the test is doing.
+Agora o Playwright abrirá uma janela real do navegador para cada teste, permitindo que você veja as interações (você verá navegar para o site e clicar no link). Isso é ótimo para depuração ou aprender o que o teste está fazendo.
 
-**Option B: Run tests via VS Code UI (optional):** If you prefer, you can install the **Playwright Test for VSCode** extension, which provides a UI to run tests and see results inside VS Code. Alternatively, Playwright has a built-in UI mode: run:
+**Opção B: Executar testes via interface do VS Code (opcional):** Se preferir, você pode instalar a extensão **Playwright Test for VSCode**, que fornece uma interface para executar testes e ver resultados dentro do VS Code. Alternativamente, o Playwright tem um modo de interface integrado: execute:
 
 ```bash
 npx playwright test --ui
 ```
 
-This opens an interactive dashboard in your browser where you can run individual tests, see reports, etc. This is optional but can be handy as you develop more tests.
+Isso abre um painel interativo no seu navegador onde você pode executar testes individuais, ver relatórios, etc. Isso é opcional, mas pode ser útil à medida que você desenvolve mais testes.
 
-> When starting out, try running in --headed mode to watch the browser interactions. It helps you verify that clicks and navigations are happening as expected. Once things work, you can run headlessly for speed.
+> Ao começar, tente executar em modo --headed para assistir às interações do navegador. Isso ajuda a verificar se cliques e navegações estão acontecendo como esperado. Uma vez que as coisas funcionem, você pode executar em modo headless para velocidade.
 
-Assuming both tests passed, you have successfully written and executed UI tests with Playwright! 🙌 Now, let's take it a step further and see how GitHub Copilot and the **Playwright MCP server** can do even more for us.
+Assumindo que ambos os testes passaram, você escreveu e executou com sucesso testes de UI com o Playwright! 🙌 Agora, vamos dar um passo adiante e ver como o GitHub Copilot e o **servidor MCP do Playwright** podem fazer ainda mais por nós.
 
-## 6. (Advanced) Using the Playwright MCP Server with Copilot's Agent Mode
+## 6. (Avançado) Usando o Servidor MCP do Playwright com o Modo Agente do Copilot
 
-> This section is optional but highly recommended to understand the cutting-edge integration of Copilot with Playwright.
+> Esta seção é opcional, mas altamente recomendada para entender a integração de ponta entre Copilot e Playwright.
 
-GitHub Copilot now has an **agent mode** that can use external tools via the Model Context Protocol (MCP). The **Playwright MCP server** is one such tool that allows Copilot to control a browser using Playwright. In simpler terms, this means Copilot can `perform browser actions` (click, navigate, etc.) as part of its reasoning, instead of just suggesting code. This can help generate tests or debug issues by actually exploring the website.
+O GitHub Copilot agora tem um **modo agente** que pode usar ferramentas externas via Model Context Protocol (MCP). O **servidor MCP do Playwright** é uma dessas ferramentas que permite ao Copilot controlar um navegador usando o Playwright. Em termos mais simples, isso significa que o Copilot pode `executar ações no navegador` (clicar, navegar, etc.) como parte de seu raciocínio, em vez de apenas sugerir código. Isso pode ajudar a gerar testes ou depurar problemas explorando realmente o site.
 
-**6.1 Installing/Enabling the Playwright MCP server in VS Code:**
+**6.1 Instalando/Habilitando o servidor MCP do Playwright no VS Code:**
 
-- In VS Code, open the Command Palette (`Ctrl+Shift+P`) and search for "**MCP: Add new server**" or "**Add MCP server**". If the GitHub Copilot extension is updated, you should find an option to install or add an MCP server configuration. Choose that, and when prompted, select the **Playwright MCP server** (some setups might list it by name). This process should auto-update your VS Code settings to include the Playwright MCP server configuration. Under the covers, it's equivalent to adding the following to your `mcp.json` settings:
+- No VS Code, abra a Paleta de Comandos (`Ctrl+Shift+P`) e procure por "**MCP: Add new server**" ou "**Add MCP server**". Se a extensão GitHub Copilot estiver atualizada, você deve encontrar uma opção para instalar ou adicionar uma configuração de servidor MCP. Escolha isso e, quando solicitado, selecione o **servidor MCP do Playwright** (algumas configurações podem listá-lo por nome). Este processo deve atualizar automaticamente as configurações do VS Code para incluir a configuração do servidor MCP do Playwright. Por baixo dos panos, é equivalente a adicionar o seguinte às suas configurações `mcp.json`:
 
     ```json
         "servers": {
@@ -283,66 +283,66 @@ GitHub Copilot now has an **agent mode** that can use external tools via the Mod
         }
     ```
 
-    (This tells VS Code to use npx to launch the latest Playwright MCP server. VS Code will handle starting/stopping it.)
+    (Isso diz ao VS Code para usar o npx para iniciar o servidor MCP do Playwright mais recente. O VS Code cuidará de iniciá-lo/pará-lo.)
 
-    If not done automatically, you can manually add the above JSON to your VS Code settings (preferences → open settings JSON). Save the settings after adding.
+    Se não for feito automaticamente, você pode adicionar manualmente o JSON acima às suas configurações do VS Code (preferências → abrir configurações JSON). Salve as configurações após adicionar.
 
-- **Alternative method:** Newer versions of the Copilot extension have an **Agents** tab or a button like "Install Server" in the Copilot Chat pane. Clicking that and selecting Playwright will achieve the same result, updating your settings and installing the server tool.
-- **Verify the MCP server is configured:** Run the command "`MCP: List Servers`" in the Command Palette. You should see "playwright" listed as an available server. You can select it and choose Start if it's not already running. (VS Code might auto-start the MCP server when needed, but it's good to know you can control it manually.)
+- **Método alternativo:** Versões mais recentes da extensão Copilot têm uma guia **Agents** ou um botão como "Install Server" no painel do Copilot Chat. Clicar nisso e selecionar Playwright alcançará o mesmo resultado, atualizando suas configurações e instalando a ferramenta do servidor.
+- **Verificar se o servidor MCP está configurado:** Execute o comando "`MCP: List Servers`" na Paleta de Comandos. Você deve ver "playwright" listado como um servidor disponível. Você pode selecioná-lo e escolher Iniciar se ainda não estiver em execução. (O VS Code pode iniciar automaticamente o servidor MCP quando necessário, mas é bom saber que você pode controlá-lo manualmente.)
 
-**6.2 Using Copilot in Agent Mode:**
+**6.2 Usando o Copilot no Modo Agente:**
 
-Now that the Playwright MCP server is set up, we can use Copilot's agent mode in VS Code to interact with the browser via natural language.
+Agora que o servidor MCP do Playwright está configurado, podemos usar o modo agente do Copilot no VS Code para interagir com o navegador via linguagem natural.
 
-- Open the `GitHub Copilot Chat` view in VS Code (click the Copilot icon in the sidebar or use the shortcut if enabled). At the top of the chat panel, you'll see a mode selector (it might say "Ask" by default). Click it and switch to `Agent` mode. This mode allows Copilot to use tools – in our case, the Playwright MCP – to act on your requests. [Suncor]
+- Abra a visualização `GitHub Copilot Chat` no VS Code (clique no ícone do Copilot na barra lateral ou use o atalho se habilitado). No topo do painel de chat, você verá um seletor de modo (pode dizer "Ask" por padrão). Clique nele e mude para o modo `Agent`. Este modo permite que o Copilot use ferramentas – no nosso caso, o MCP do Playwright – para agir em suas solicitações.
 
-- Next to the prompt input, there may be a "Tools" or "Plugins" button where you can manage which tools the agent can use. Ensure the Playwright tool (likely listed as "playwright" or specific actions like navigate, click, etc.) is `enabled`. You might not need to tweak this if it's the only server, but it's good to check. Copilot's agent can perform many actions exposed by Playwright MCP, such as `browser_navigate`, `browser_click`, `browser_type`, etc., based on what the server provides.
+- Ao lado da entrada de prompt, pode haver um botão "Tools" ou "Plugins" onde você pode gerenciar quais ferramentas o agente pode usar. Certifique-se de que a ferramenta Playwright (provavelmente listada como "playwright" ou ações específicas como navegar, clicar, etc.) está `habilitada`. Você pode não precisar ajustar isso se for o único servidor, mas é bom verificar. O agente do Copilot pode executar muitas ações expostas pelo MCP do Playwright, como `browser_navigate`, `browser_click`, `browser_type`, etc., com base no que o servidor fornece.
 
-- **Give the agent a task:** Now you can simply **ask Copilot to perform web actions or even generate tests**. For example, try typing:
-
-    ```text
-    Navigate to https://www.suncor.com and list the text of the top navigation menu.
-    ```
-
-    When you send this, Copilot (in agent mode) will decide it needs to use the browser. It will likely respond by asking for permission to run a tool (for security, the first time it runs) – for instance, it might say it wants to execute a browser_navigate command to open the URL. Grant permission, and it will use Playwright to open the Suncor homepage in the background (headless). Then it might use another tool to read elements on the page (via the accessibility tree) and return the list of menu items (which could include "What we do", "Who we are", "Sustainability", etc., as seen on the site). This is Copilot actually controlling a browser session through Playwright MCP!
-
-    Similarly, you could ask the agent to click something:
+- **Dê uma tarefa ao agente:** Agora você pode simplesmente **pedir ao Copilot para executar ações web ou até gerar testes**. Por exemplo, tente digitar:
 
     ```text
-    Click on the "Investors" link.
+    Navegue até https://ri.copasa.com.br/ e liste o texto do menu de navegação principal.
     ```
 
-    It will again choose a `browser_click` action on an element named "Investors". After performing the click, you could ask:
+    Quando você enviar isso, o Copilot (no modo agente) decidirá que precisa usar o navegador. Provavelmente responderá pedindo permissão para executar uma ferramenta (por segurança, na primeira vez que executar) – por exemplo, pode dizer que quer executar um comando browser_navigate para abrir a URL. Conceda permissão, e ele usará o Playwright para abrir a página inicial da COPASA em segundo plano (headless). Então pode usar outra ferramenta para ler elementos na página (via árvore de acessibilidade) e retornar a lista de itens do menu. Isso é o Copilot realmente controlando uma sessão do navegador através do MCP do Playwright!
+
+    Da mesma forma, você pode pedir ao agente para clicar em algo:
 
     ```text
-    What is the page title now?
+    Clique no link "Informações Financeiras".
     ```
 
-    The agent might then fetch the title of the current page (which should now be the Investors page) and respond with it (for example, "Investors | Suncor") confirming the navigation succeeded.
-
-- **Generating a test via the agent (optional):** One of the powerful uses of this setup is to have Copilot generate test code after exploring. You can try a prompt like:
+    Ele novamente escolherá uma ação `browser_click` em um elemento chamado "Informações Financeiras". Depois de executar o clique, você pode perguntar:
 
     ```text
-    Generate a Playwright test in TypeScript that navigates to suncor.com, clicks the "Investors" link, and verifies the title contains "Investors".
+    Qual é o título da página agora?
     ```
 
-    Because we've essentially done this manually, Copilot agent might replay those steps: it will navigate, click, verify title using the MCP server (as above), then **produce a snippet of code** as the answer. In ideal cases, it will output a test function similar to what we wrote (using `await page.goto(...)`, etc.). You can then copy that code into your test file. This demonstrates how an AI agent can *autonomously generate a test by actually trying out the interactions first* – very useful for black-box testing scenarios.
+    O agente pode então buscar o título da página atual (que agora deve ser a página de informações) e responder com ele, confirmando que a navegação foi bem-sucedida.
 
-Keep in mind that Copilot's agent is a relatively new feature. It may sometimes take different approaches or require carefully phrased prompts. The key is that the Playwright MCP server gives it the "hands" to manipulate the browser, and it can use that to help you write or debug tests in ways that static code suggestions alone cannot.
+- **Gerando um teste via agente (opcional):** Um dos usos poderosos dessa configuração é fazer o Copilot gerar código de teste após explorar. Você pode tentar um prompt como:
 
-When you're done experimenting, you can stop the MCP server (via "MCP: List Servers" -> Stop) or simply close VS Code. The MCP server runs locally and only while VS Code is open/active.
+    ```text
+    Gere um teste Playwright em TypeScript que navegue para ri.copasa.com.br, clique no link "Informações Financeiras" e verifique se a URL contém "informacoes".
+    ```
 
-## Summary
+    Como essencialmente fizemos isso manualmente, o agente Copilot pode repetir essas etapas: navegará, clicará, verificará usando o servidor MCP (como acima), e então **produzirá um trecho de código** como resposta. Em casos ideais, ele produzirá uma função de teste similar ao que escrevemos (usando `await page.goto(...)`, etc.). Você pode então copiar esse código para seu arquivo de teste. Isso demonstra como um agente de IA pode *gerar autonomamente um teste experimentando primeiro as interações* – muito útil para cenários de teste de caixa preta.
 
-In this hands-on lab, we covered the full journey of setting up and using Visual Studio Code, GitHub Copilot, and Playwright (with the MCP server) for UI testing:
+Tenha em mente que o modo agente do Copilot é um recurso relativamente novo. Pode às vezes tomar abordagens diferentes ou exigir prompts cuidadosamente formulados. A chave é que o servidor MCP do Playwright lhe dá as "mãos" para manipular o navegador, e ele pode usar isso para ajudá-lo a escrever ou depurar testes de maneiras que sugestões de código estático sozinhas não podem.
 
-- We set up our environment with Node.js and VS Code, and installed GitHub Copilot to assist with coding.
-- We initialized a project and installed Playwright, including its browsers.
-- Using TypeScript, we wrote two simple Playwright tests for the Suncor website – one to check the homepage title, and one to navigate to the Investors page. GitHub Copilot helped generate the code based on our comments and prompts, making the process quicker and showcasing how AI can aid in writing test automation.
-- We ran the tests using Playwright's runner, both headlessly and in headed mode to see the browser action, ensuring the tests behaved as expected.
-- We then explored the advanced Copilot agent mode with the Playwright MCP server, which allows Copilot to not just suggest code but actually control a browser to perform tasks. This allowed us to ask Copilot in natural language to interact with the Suncor site and even generate test code automatically, demonstrating a glimpse of the future of AI-assisted testing.
-- Finally, we went through best practices (like reviewing AI suggestions, writing independent tests, using Playwright's robust features) and troubleshooting tips for common issues (Copilot setup problems, Playwright installation issues, etc.), so you can resolve them and continue your testing smoothly.
+Quando terminar de experimentar, você pode parar o servidor MCP (via "MCP: List Servers" -> Stop) ou simplesmente fechar o VS Code. O servidor MCP é executado localmente e apenas enquanto o VS Code está aberto/ativo.
 
-You should now have a functional test project and a grasp of how to write Playwright tests with some AI help. From here, you can expand your test suite to cover more of the Suncor site or any other web application. Try testing form submissions, navigation flows, or use Copilot to generate a test for a different scenario on the site. Each time, you'll get more comfortable with the tools.
+## Resumo
 
-**Happy testing, and happy coding with Copilot!** The combination of Playwright's powerful automation and Copilot's AI suggestions can make writing tests faster and even fun. Good luck on your QA automation journey! 🚀
+Neste laboratório prático, cobrimos toda a jornada de configuração e uso do Visual Studio Code, GitHub Copilot e Playwright (com o servidor MCP) para testes de UI:
+
+- Configuramos nosso ambiente com Node.js e VS Code, e instalamos o GitHub Copilot para auxiliar na codificação.
+- Inicializamos um projeto e instalamos o Playwright, incluindo seus navegadores.
+- Usando TypeScript, escrevemos dois testes simples do Playwright para o site de relações com investidores da COPASA – um para verificar o título da página inicial, e um para navegar até a página de informações financeiras. O GitHub Copilot ajudou a gerar o código baseado em nossos comentários e prompts, tornando o processo mais rápido e demonstrando como a IA pode auxiliar na escrita de automação de testes.
+- Executamos os testes usando o executor do Playwright, tanto em modo headless quanto em modo headed para ver a ação do navegador, garantindo que os testes se comportassem como esperado.
+- Então exploramos o modo agente avançado do Copilot com o servidor MCP do Playwright, que permite ao Copilot não apenas sugerir código, mas realmente controlar um navegador para executar tarefas. Isso nos permitiu pedir ao Copilot em linguagem natural para interagir com o site da COPASA e até gerar código de teste automaticamente, demonstrando um vislumbre do futuro dos testes assistidos por IA.
+- Finalmente, passamos por melhores práticas (como revisar sugestões de IA, escrever testes independentes, usar recursos robustos do Playwright) e dicas de solução de problemas para problemas comuns (problemas de configuração do Copilot, problemas de instalação do Playwright, etc.), para que você possa resolvê-los e continuar seus testes sem problemas.
+
+Agora você deve ter um projeto de teste funcional e uma compreensão de como escrever testes do Playwright com alguma ajuda de IA. A partir daqui, você pode expandir seu conjunto de testes para cobrir mais do site da COPASA ou qualquer outra aplicação web. Tente testar envios de formulários, fluxos de navegação, ou use o Copilot para gerar um teste para um cenário diferente no site. Cada vez, você ficará mais confortável com as ferramentas.
+
+**Bons testes e boa codificação com o Copilot!** A combinação da poderosa automação do Playwright e as sugestões de IA do Copilot pode tornar a escrita de testes mais rápida e até divertida. Boa sorte em sua jornada de automação de QA! 🚀
